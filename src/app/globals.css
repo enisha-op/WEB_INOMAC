@@ -1,26 +1,31 @@
 @import "tailwindcss";
 
+/* @tailwind base;
+@tailwind components;
+@tailwind utilities; */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Colores INOMAC extraídos de tu logo */
+  --primary: #FF8A00;
+  --primary-foreground: #ffffff;
+  --secondary: #1a1a1a;
+  --secondary-foreground: #ffffff;
+  --card: rgba(255, 255, 255, 0.1);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer utilities {
+  .bg-primary { background-color: var(--primary); }
+  .text-primary { color: var(--primary); }
+  .bg-secondary { background-color: var(--secondary); }
+  .text-primary-foreground { color: var(--primary-foreground); }
+  
+  .bg-gradient-hero {
+    background: linear-gradient(to bottom right, #1a1a1a, #333333);
   }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  
+  .text-gradient {
+    background: linear-gradient(to right, #FF8A00, #FFB800);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
 }
