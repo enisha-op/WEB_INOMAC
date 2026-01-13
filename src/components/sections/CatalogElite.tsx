@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowUpRight, X, Download, Camera, ChevronRight } from "lucide-react";
+import { ArrowUpRight, X, Download, ChevronRight } from "lucide-react";
 import { TRUCKS } from "@/data/trucks";
 
 export const CatalogElite = () => {
@@ -36,7 +36,6 @@ export const CatalogElite = () => {
           </motion.div>
         </div>
 
-        {/* GRID PRINCIPAL */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-20">
           {TRUCKS.map((truck, i) => (
             <motion.div 
@@ -67,16 +66,18 @@ export const CatalogElite = () => {
 
               <div className="flex flex-col grow px-2">
                 <div className="flex justify-between items-center mb-4">
-                  <h4 className="text-3xl font-light uppercase tracking-tight group-hover:text-primary transition-colors duration-300">{truck.name}</h4>
+                  <h4 className="text-2xl md:text-3xl font-light uppercase tracking-tight group-hover:text-primary transition-colors duration-300">{truck.name}</h4>
                   <span className="text-[10px] font-bold tracking-[0.2em] text-primary border-b border-primary uppercase">Nuevo 2026</span>
                 </div>
                 <p className="text-theme font-medium text-xs tracking-widest uppercase mb-8 italic">{truck.specs}</p>
-                <div className="mt-auto pt-8 border-t border-theme flex justify-between items-center">
+                
+                {/* SECCIÓN CORREGIDA: Ajuste de espaciado en mobile */}
+                <div className="mt-auto pt-8 border-t border-theme flex flex-col md:flex-row justify-between items-start md:items-center gap-6 md:gap-0">
                   <div>
                     <span className="text-theme/40 text-[10px] uppercase block mb-1 font-bold">Inversión</span>
                     <span className="font-black text-3xl tracking-tight text-primary">{truck.price}</span>
                   </div>
-                  <button className="flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.2em] bg-primary text-white px-6 py-3 rounded-sm">
+                  <button className="w-full md:w-auto flex items-center justify-center gap-2 text-[11px] font-black uppercase tracking-[0.2em] bg-primary text-white px-8 py-4 md:py-3 rounded-sm hover:brightness-110 transition-all shadow-lg">
                     Ver Detalles <ChevronRight size={14} />
                   </button>
                 </div>
@@ -86,7 +87,6 @@ export const CatalogElite = () => {
         </div>
       </div>
 
-      {/* MODAL CORREGIDO */}
       <AnimatePresence>
         {isModalOpen && selectedTruck && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center md:p-10">
@@ -104,16 +104,14 @@ export const CatalogElite = () => {
               exit={{ opacity: 0, y: "100%" }} 
               className="relative bg-theme w-full h-full md:h-auto md:max-w-6xl md:max-h-[95vh] overflow-y-auto border-t md:border border-theme text-theme p-6 md:p-12 shadow-2xl no-scrollbar"
             >
-              {/* BOTÓN CERRAR: CORREGIDO CON CLASES DE TAILWIND */}
               <button 
                 onClick={() => setIsModalOpen(false)} 
-                className="fixed md:absolute top-6 right-6 z-[110] bg-primary text-white p-3 rounded-full shadow-lg hover:rotate-90 transition-transform flex items-center justify-center"
+                className="fixed md:absolute top-6 right-6 z-[110] bg-primary text-white p-3 rounded-full shadow-lg flex items-center justify-center"
               >
                 <X className="w-6 h-6 md:w-8 md:h-8" /> 
               </button>
               
               <div className="grid md:grid-cols-2 gap-8 md:gap-12 mt-12 md:mt-0">
-                {/* GALERÍA */}
                 <div className="space-y-4 md:space-y-6">
                   <div className="aspect-video overflow-hidden border border-theme bg-black/5 rounded-sm shadow-inner">
                     <motion.img 
@@ -137,7 +135,6 @@ export const CatalogElite = () => {
                   </div>
                 </div>
 
-                {/* DETALLES */}
                 <div className="flex flex-col">
                   <span className="text-primary font-bold tracking-[0.5em] text-[10px] uppercase mb-4 block">SinoTruk Luxury GNL</span>
                   <h2 className="text-3xl md:text-5xl lg:text-6xl font-black uppercase tracking-tighter mb-2 text-theme leading-tight">
@@ -154,7 +151,6 @@ export const CatalogElite = () => {
                     ))}
                   </div>
 
-                  {/* BOTÓN DESCARGA */}
                   <div className="relative group mt-auto pb-10 md:pb-0">
                     <div className="absolute -inset-1 bg-primary rounded-lg blur opacity-25 animate-pulse"></div>
                     <button className="relative w-full bg-primary text-white py-5 md:py-6 text-[11px] font-black uppercase tracking-[0.3em] flex items-center justify-center gap-4 hover:bg-foreground hover:text-background transition-all">
