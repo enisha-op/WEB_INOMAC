@@ -1,87 +1,90 @@
 'use client'
 import { motion } from "framer-motion";
-import { Plus } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 
 const financeOptions = [
   { 
     title: "Inomac Leasing", 
-    desc: "Optimice su flujo de caja con beneficios fiscales significativos y cuotas adaptables al ciclo de su negocio." 
+    desc: "Optimice su flujo de caja con beneficios fiscales significativos. Ideal para flotas corporativas que buscan renovar equipos constantemente sin afectar su capital de trabajo.",
+    link: "https://wa.me/5190000000?text=Hola, deseo información sobre Leasing"
   },
   { 
     title: "Crédito Directo", 
-    desc: "Financiamiento tradicional con tasas preferenciales y plazos de hasta 60 meses para la adquisición de su flota." 
+    desc: "Financiamiento tradicional con plazos de hasta 60 meses. Tasas competitivas y evaluación rápida para que su camión SinoTruk empiece a trabajar de inmediato.",
+    link: "https://wa.me/51900000000?text=Hola, deseo información sobre Crédito Directo"
   },
   { 
     title: "Seguro de Flota", 
-    desc: "Protección integral diseñada específicamente para las exigencias del transporte de carga pesada nacional." 
+    desc: "Protección integral diseñada para carga pesada nacional. Cobertura contra accidentes, robo y asistencia especializada para transportistas en toda la red nacional.",
+    link: "https://wa.me/51900000000?text=Hola, deseo información sobre Seguros"
   },
 ];
 
 export const Finance = () => {
   return (
-    <section id="financiamiento" className="py-32 bg-white text-black">
+    <section id="financiamiento" className="py-24 bg-theme text-theme transition-colors duration-500">
       <div className="max-w-[1400px] mx-auto px-8">
         
-        {/* Encabezado Minimalista */}
         <div className="mb-24">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-          >
-            <span className="text-primary font-bold tracking-[0.5em] uppercase text-[10px] mb-4 block">
-              Servicios Financieros
-            </span>
-            <h2 className="text-4xl md:text-6xl font-light uppercase tracking-tighter">
-              SOLUCIONES DE <span className="font-black italic">MOVILIDAD</span>
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+            <span className="text-primary font-bold tracking-[0.5em] uppercase text-[12px] mb-4 block">Servicios Financieros</span>
+            <h2 className="text-5xl md:text-7xl font-light uppercase tracking-tighter">
+              SOLUCIONES DE <span className="font-black italic text-primary">MOVILIDAD</span>
             </h2>
           </motion.div>
         </div>
 
-        {/* Grid de Opciones Estilo Porsche Corregido */}
-        {/* Añadimos -mx-8 al contenedor y px-8 a los hijos para un alineamiento perfecto */}
-        <div className="grid grid-cols-1 md:grid-cols-3 border-t border-black/10">
+        <div className="grid grid-cols-1 md:grid-cols-3 border-t border-theme">
           {financeOptions.map((item, i) => (
             <motion.div 
               key={i}
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              transition={{ duration: 1, delay: i * 0.2 }}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.1 }}
               viewport={{ once: true }}
-              /* CAMBIOS AQUÍ: Añadimos px-8 (padding lateral) y md:pl-0 en la primera columna */
-              className={`group pt-12 pb-20 px-8 border-b md:border-b-0 md:border-r border-black/10 last:border-r-0 relative ${i === 0 ? 'md:pl-0' : ''}`}
+              className={`group pt-16 pb-20 px-8 border-b md:border-b-0 md:border-r border-theme last:border-r-0 relative transition-all duration-500 hover:bg-primary/[0.02] ${i === 0 ? 'md:pl-0' : ''}`}
             >
-              <div className="flex justify-between items-start mb-12">
-                <h4 className="text-2xl font-light uppercase tracking-tight group-hover:text-primary transition-colors duration-300">
+              <div className="flex justify-between items-start mb-10">
+                <h4 className="text-3xl font-bold uppercase tracking-tight group-hover:text-primary transition-colors leading-none">
                   {item.title}
                 </h4>
-                <Plus size={20} className="text-black/20 group-hover:text-primary group-hover:rotate-90 transition-all duration-500" />
+                <ArrowUpRight size={28} className="text-primary opacity-40 group-hover:opacity-100 transition-all" />
               </div>
-              
-              <p className="text-black/60 text-sm font-light leading-relaxed mb-10 max-w-[280px]">
+
+              <p className="text-theme/90 dark:text-theme/80 text-lg font-medium leading-relaxed mb-12 min-h-[120px]">
                 {item.desc}
               </p>
 
-              <button className="text-[10px] font-bold uppercase tracking-widest border-b border-black pb-1 hover:text-primary hover:border-primary transition-all duration-300">
-                Saber más
-              </button>
+              <a 
+                href={item.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-3 text-[12px] font-black uppercase tracking-[0.3em] bg-primary text-white px-8 py-4 rounded-sm hover:brightness-110 transition-all shadow-lg"
+              >
+                Solicitar Asesoría
+              </a>
             </motion.div>
           ))}
         </div>
 
-        {/* Banner Inferior Sutil */}
+        {/* Banner Inferior Actualizado */}
         <motion.div 
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          className="mt-20 p-12 bg-black text-white flex flex-col md:flex-row justify-between items-center gap-8"
+          initial={{ opacity: 0, scale: 0.95 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          className="mt-24 p-16 bg-foreground text-background flex flex-col md:flex-row justify-between items-center gap-10 transition-colors duration-500 rounded-sm shadow-2xl"
         >
-          <p className="text-xl font-light uppercase tracking-tight">
-            ¿Necesita una <span className="font-bold italic">cotización personalizada</span> para su flota?
+          <p className="text-2xl md:text-3xl font-light uppercase tracking-tight text-center md:text-left max-w-xl">
+            ¿Busca un plan a la <span className="font-bold italic text-primary text-3xl md:text-4xl">medida</span> de su flota comercial?
           </p>
-          <button className="bg-primary text-white px-10 py-4 font-bold uppercase text-[10px] tracking-widest hover:bg-white hover:text-black transition-all duration-500">
-            Contactar Asesor
-          </button>
+          
+          {/* CAMBIO AQUÍ: Ahora es un <a> que redirige a #contacto */}
+          <a 
+            href="#contacto"
+            className="w-full md:w-auto bg-primary text-white px-12 py-6 font-black uppercase text-[12px] tracking-[0.4em] hover:scale-105 transition-all shadow-xl text-center flex items-center justify-center"
+          >
+            Hablar con un experto
+          </a>
         </motion.div>
       </div>
     </section>

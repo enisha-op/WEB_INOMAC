@@ -5,14 +5,13 @@ import { ArrowRight } from "lucide-react";
 export const Hero = () => {
   return (
     <section id="inicio" className="relative h-screen w-full flex items-end pb-20 overflow-hidden bg-black">
-      {/* Background Image - Estilo Porsche: Limpio y Full Screen */}
+      {/* Background Image */}
       <div className="absolute inset-0">
         <img
           src="/hero-truck.jpg" 
           alt="Camión INOMAC"
           className="w-full h-full object-cover opacity-80"
         />
-        {/* Gradiente sutil para legibilidad inferior */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
       </div>
 
@@ -29,7 +28,7 @@ export const Hero = () => {
             </span>
           </motion.div>
 
-          {/* Título Estilo Porsche: Grande, Blanco y Elegante */}
+          {/* Título Estilo Porsche */}
           <motion.h1 
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -49,25 +48,34 @@ export const Hero = () => {
             La excelencia en transporte de carga pesada. Descubra la nueva generación de camiones diseñados para el máximo rendimiento.
           </motion.p>
 
-          {/* Botones Estilo Porsche: Rectangulares y Minimalistas */}
+          {/* Botones con Redirección */}
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.6 }}
             className="flex flex-col sm:flex-row gap-4"
           >
-            <button className="bg-white text-black px-10 py-4 font-bold uppercase text-xs tracking-widest hover:bg-primary hover:text-white transition-all duration-500 flex items-center justify-center gap-3">
+            {/* Redirige al Catálogo */}
+            <a 
+              href="#catalogo" 
+              className="bg-white text-black px-10 py-4 font-bold uppercase text-xs tracking-widest hover:bg-primary hover:text-white transition-all duration-500 flex items-center justify-center gap-3"
+            >
               Explorar Modelos
               <ArrowRight size={16} />
-            </button>
-            <button className="bg-transparent border border-white/40 text-white px-10 py-4 font-bold uppercase text-xs tracking-widest hover:bg-white hover:text-black transition-all duration-500">
-              Configurar Unidad
-            </button>
+            </a>
+
+            {/* Redirige al Formulario de Contacto */}
+            <a 
+              href="#contacto" 
+              className="bg-transparent border border-white/40 text-white px-10 py-4 font-bold uppercase text-xs tracking-widest hover:bg-white hover:text-black transition-all duration-500 text-center"
+            >
+              Cotizar
+            </a>
           </motion.div>
         </div>
       </div>
 
-      {/* Indicador de Scroll Minimalista a la derecha */}
+      {/* Indicador de Scroll */}
       <div className="absolute right-10 bottom-10 hidden md:block">
         <div className="flex flex-col items-center gap-4">
           <span className="text-white/40 [writing-mode:vertical-lr] uppercase tracking-[0.3em] text-[10px] font-bold">Scroll</span>

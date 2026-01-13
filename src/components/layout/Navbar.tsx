@@ -59,16 +59,16 @@ export const Navbar = () => {
           
           <div className="h-4 w-[1px] bg-white/20 mx-2" />
           
-          <button className="text-white hover:text-primary transition-colors">
+          {/* <button className="text-white hover:text-primary transition-colors">
             <Search size={18} strokeWidth={1.5} />
-          </button>
+          </button> */}
         </div>
 
         {/* MOBILE TOGGLE */}
         <div className="md:hidden flex items-center gap-6">
-           <button className="text-white">
+           {/* <button className="text-white">
             <Search size={20} strokeWidth={1.5} />
-          </button>
+          </button> */}
           <button 
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             className="text-white"
