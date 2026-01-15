@@ -28,9 +28,9 @@ export const Finance = () => {
         
         <div className="mb-24">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-            <span className="text-red-600 font-bold tracking-[0.5em] uppercase text-[12px] mb-4 block">Servicios Financieros</span>
+            <span className="text-red-600 font-bold tracking-[0.5em] uppercase text-[12px] mb-4 block">Opciones de Financiamiento</span>
             <h2 className="text-5xl md:text-7xl font-light uppercase tracking-tighter">
-              SOLUCIONES DE <span className="font-black italic text-red-600">MOVILIDAD</span>
+              PLANES DE <span className="font-black italic text-red-600">ADQUISICIÓN</span>
             </h2>
           </motion.div>
         </div>
