@@ -32,18 +32,18 @@ export const Navbar = () => {
     >
       <div className="max-w-[1400px] mx-auto px-8 flex justify-between items-center">
         
-        {/* LOGO MINIMALISTA */}
+        {/* LOGO MINIMALISTA CON ACENTO ROJO */}
         <motion.div 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           className="flex items-center"
         >
           <span className="text-xl font-light tracking-[0.3em] text-white uppercase">
-            INO<span className="font-black italic text-primary">MAC</span>
+            INO<span className="font-black italic text-red-600">MAC</span>
           </span>
         </motion.div>
 
-        {/* DESKTOP MENU ESTILO PORSCHE */}
+        {/* DESKTOP MENU */}
         <div className="hidden md:flex items-center space-x-12">
           {navLinks.map((link) => (
             <a
@@ -52,26 +52,24 @@ export const Navbar = () => {
               className="group relative text-white/70 hover:text-white text-[10px] font-bold uppercase tracking-[0.2em] transition-colors"
             >
               {link.name}
-              {/* Línea animada inferior */}
-              <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-primary transition-all duration-300 group-hover:w-full" />
+              {/* Línea animada inferior en ROJO */}
+              <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-red-600 transition-all duration-300 group-hover:w-full" />
             </a>
           ))}
           
           <div className="h-4 w-[1px] bg-white/20 mx-2" />
           
-          {/* <button className="text-white hover:text-primary transition-colors">
+          {/* Opcional: Icono de búsqueda con hover rojo si se habilita */}
+          {/* <button className="text-white hover:text-red-600 transition-colors">
             <Search size={18} strokeWidth={1.5} />
           </button> */}
         </div>
 
         {/* MOBILE TOGGLE */}
         <div className="md:hidden flex items-center gap-6">
-           {/* <button className="text-white">
-            <Search size={20} strokeWidth={1.5} />
-          </button> */}
           <button 
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="text-white"
+            className="text-white focus:outline-none"
           >
             {isMobileMenuOpen ? <X size={24} strokeWidth={1.5} /> : <Menu size={24} strokeWidth={1.5} />}
           </button>
@@ -96,7 +94,7 @@ export const Navbar = () => {
                   key={link.name}
                   href={link.href}
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="text-3xl font-light text-white uppercase tracking-tighter hover:text-primary transition-colors"
+                  className="text-3xl font-light text-white uppercase tracking-tighter hover:text-red-600 transition-colors"
                 >
                   {link.name}
                 </motion.a>

@@ -27,7 +27,7 @@ const services = [
 
 export const Services = () => {
   return (
-    <section id="servicios" className="py-24 bg-theme text-theme transition-colors duration-500">
+    <section id="servicios" className="py-24 bg-white text-black transition-colors duration-500">
       <div className="max-w-[1400px] mx-auto px-8">
         
         {/* Cabecera Editorial */}
@@ -38,17 +38,17 @@ export const Services = () => {
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
           >
-            <span className="text-primary font-bold tracking-[0.5em] uppercase text-[12px] mb-4 block">
+            <span className="text-red-600 font-bold tracking-[0.5em] uppercase text-[12px] mb-4 block">
               Beyond the Drive
             </span>
-            <h2 className="text-5xl md:text-7xl font-light uppercase tracking-tighter">
-              SERVICIOS DE <span className="font-black italic text-primary">POSVENTA</span>
+            <h2 className="text-5xl md:text-7xl font-light uppercase tracking-tighter leading-tight">
+              SERVICIOS DE <span className="font-black italic text-red-600">POSVENTA</span>
             </h2>
           </motion.div>
         </div>
 
         {/* Grid Técnico */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-px bg-theme border border-theme group/grid shadow-2xl">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-px bg-gray-100 border border-gray-100 group/grid shadow-[0_20px_50px_rgba(0,0,0,0.05)]">
           {services.map((service, i) => (
             <motion.div
               key={i}
@@ -56,22 +56,23 @@ export const Services = () => {
               whileInView={{ opacity: 1 }}
               transition={{ duration: 0.8, delay: i * 0.1 }}
               viewport={{ once: true }}
-              className="bg-theme p-12 hover:bg-primary/[0.04] dark:hover:bg-primary/[0.08] transition-all duration-500 group/card min-h-[400px] flex flex-col"
+              // CAMBIOS: Se añadió items-center y text-center para centrar iconos y textos
+              className="bg-white p-12 hover:bg-gray-50 transition-all duration-500 group/card min-h-[400px] flex flex-col items-center text-center"
             >
-              {/* Icono más grande y grueso */}
+              {/* Icono en Rojo centrado */}
               <service.icon 
                 size={48} 
                 strokeWidth={1.5} 
-                className="text-primary mb-10 group-hover/card:scale-110 group-hover/card:rotate-3 transition-transform duration-500" 
+                className="text-red-600 mb-10 group-hover/card:scale-110 group-hover/card:rotate-3 transition-transform duration-500" 
               />
               
-              {/* Título más grande y bold */}
-              <h4 className="text-2xl font-bold uppercase tracking-tight mb-6 group-hover/card:text-primary transition-colors leading-tight">
+              {/* Título centrado */}
+              <h4 className="text-2xl font-bold uppercase tracking-tight mb-6 group-hover/card:text-red-600 transition-colors leading-tight">
                 {service.title}
               </h4>
               
-              {/* Descripción con texto base (16px) y más grueso */}
-              <p className="text-theme/90 dark:text-theme/80 text-base font-medium leading-relaxed">
+              {/* Descripción centrada */}
+              <p className="text-gray-600 text-base font-medium leading-relaxed">
                 {service.desc}
               </p>
             </motion.div>
@@ -80,10 +81,7 @@ export const Services = () => {
 
         {/* Marcado de Certificación */}
         <div className="mt-20 text-center">
-          {/* <p className="text-theme font-bold text-[12px] tracking-[0.4em] uppercase opacity-60">
-            Excelencia certificada por ingenieros de INOMAC PERÚ
-          </p> */}
-          <div className="h-1 w-24 bg-primary mx-auto mt-4" />
+          <div className="h-1 w-24 bg-red-600 mx-auto mt-4 shadow-[0_0_15px_rgba(220,38,38,0.3)]" />
         </div>
       </div>
     </section>

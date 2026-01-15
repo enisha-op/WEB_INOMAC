@@ -5,7 +5,7 @@ export const Preloader = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Simulamos la carga de recursos (puedes ajustar el tiempo)
+    // Simulamos la carga de recursos
     const timer = setTimeout(() => {
       setLoading(false);
     }, 2500);
@@ -23,7 +23,7 @@ export const Preloader = () => {
           className="fixed inset-0 z-[200] flex items-center justify-center bg-black"
         >
           <div className="flex flex-col items-center">
-            {/* Logo con animación de entrada y pulso */}
+            {/* Logo con animación de entrada y pulso en ROJO */}
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -36,25 +36,26 @@ export const Preloader = () => {
               className="relative"
             >
               <h1 className="text-4xl md:text-6xl font-light tracking-[0.4em] text-white uppercase">
-                INO<span className="font-black italic text-primary">MAC</span>
+                INO<span className="font-black italic text-red-600">MAC</span>
               </h1>
             </motion.div>
 
-            {/* Barra de carga minimalista */}
+            {/* Barra de carga minimalista en ROJO */}
             <motion.div 
-              className="mt-8 h-[1px] bg-primary"
+              className="mt-8 h-[1px] bg-red-600"
               initial={{ width: 0 }}
               animate={{ width: "100px" }}
               transition={{ duration: 2, ease: "easeInOut" }}
             />
             
-            {/* <motion.p
+            {/* Opcional: Subtítulo con opacidad baja */}
+            <motion.p
               initial={{ opacity: 0 }}
               animate={{ opacity: 0.4 }}
               className="mt-4 text-[10px] font-bold tracking-[0.5em] text-white uppercase"
             >
-              Engineering Performance
-            </motion.p> */}
+              High Performance
+            </motion.p>
           </div>
         </motion.div>
       )}

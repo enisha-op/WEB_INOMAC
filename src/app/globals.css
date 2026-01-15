@@ -1,12 +1,8 @@
 @import "tailwindcss";
 
-/* @tailwind base;
-@tailwind components;
-@tailwind utilities; */
-
 :root {
-  /* Colores INOMAC extraídos de tu logo */
-  --primary: #FF8A00;
+  /* CAMBIO A ROJO POTENCIA */
+  --primary: #E60000; /* Un rojo vibrante y sólido */
   --primary-foreground: #ffffff;
   --secondary: #1a1a1a;
   --secondary-foreground: #ffffff;
@@ -24,7 +20,8 @@
   }
   
   .text-gradient {
-    background: linear-gradient(to right, #FF8A00, #FFB800);
+    /* Gradiente actualizado de Rojo a un tono más oscuro para profundidad */
+    background: linear-gradient(to right, #E60000, #990000);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
@@ -37,7 +34,7 @@
   --card-bg: #f8f8f8;
   --border-subtle: rgba(0, 0, 0, 0.1);
   --text-muted: rgba(0, 0, 0, 0.5);
-  --primary: #FF8A00;
+  --primary: #E60000; /* Aseguramos que el rojo esté aquí también */
 }
 
 [class="dark"] {

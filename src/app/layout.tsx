@@ -24,7 +24,7 @@ export default function RootLayout({
             {children}
           </main>
           
-          <ThemeToggle /> 
+          {/* <ThemeToggle />  */}
         </ThemeProvider>
       </body>
     </html>
