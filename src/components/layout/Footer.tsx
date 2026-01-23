@@ -51,7 +51,7 @@ export const Footer = () => {
             </div>
             <div className="text-right">
               <p className="text-[11px] font-black tracking-[0.2em] text-white/40 uppercase mb-2">Soporte Directo</p>
-              <p className="text-2xl font-bold tracking-tighter text-white">+51 900 000 000</p>
+              <p className="text-2xl font-bold tracking-tighter text-white">+51 949 119 350</p>
             </div>
           </div>
         </div>

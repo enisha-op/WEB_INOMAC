@@ -1,4 +1,5 @@
 import { Hero } from '@/components/sections/Hero';
+import { Navbar } from '@/components/layout/Navbar';
 import { CatalogElite } from '@/components/sections/CatalogElite';
 import { Specs } from '@/components/sections/Specs';
 import { Services } from '@/components/sections/Services';
@@ -10,6 +11,7 @@ import { WhatsAppBtn } from '@/components/ui/WhatsAppBtn';
 export default function Home() {
   return (
     <main>
+      <Navbar />
       <Hero />
       <CatalogElite />
       {/* <Specs /> */}

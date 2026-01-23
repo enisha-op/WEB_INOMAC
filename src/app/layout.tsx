@@ -17,7 +17,7 @@ export default function RootLayout({
           {/* El Preloader aparece primero para bloquear la vista mientras carga */}
           <Preloader /> 
           
-          <Navbar />
+          
           
           {/* Main content */}
           <main>
