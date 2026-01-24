@@ -1,4 +1,3 @@
-/*
 'use client'
 import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
@@ -23,20 +22,20 @@ const financeOptions = [
 
 export const Finance = () => {
   return (
+    // bg-white puro para coherencia con el Hero y Catálogo
     <section id="financiamiento" className="py-24 bg-white text-black transition-colors duration-500">
       <div className="max-w-[1400px] mx-auto px-8">
         
         <div className="mb-24">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-            <span className="text-red-600 font-bold tracking-[0.5em] uppercase text-[12px] mb-4 block">
-              Opciones de Financiamiento
-            </span>
+            <span className="text-red-600 font-bold tracking-[0.5em] uppercase text-[12px] mb-4 block">Opciones de Financiamiento</span>
             <h2 className="text-5xl md:text-7xl font-light uppercase tracking-tighter">
               PLANES DE <span className="font-black italic text-red-600">ADQUISICIÓN</span>
             </h2>
           </motion.div>
         </div>
 
+        {/* Grid con bordes grises muy tenues */}
         <div className="grid grid-cols-1 md:grid-cols-3 border-t border-gray-100">
           {financeOptions.map((item, i) => (
             <motion.div 
@@ -70,6 +69,7 @@ export const Finance = () => {
           ))}
         </div>
 
+        {/* Banner Inferior optimizado para fondo blanco */}
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
           whileInView={{ opacity: 1, scale: 1 }}
@@ -91,4 +91,3 @@ export const Finance = () => {
     </section>
   );
 };
-*/
