@@ -1,4 +1,4 @@
-'use client'
+/*'use client'
 import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 
@@ -90,4 +90,4 @@ export const Finance = () => {
       </div>
     </section>
   );
-};
+};*/
