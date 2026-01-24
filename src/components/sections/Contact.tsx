@@ -82,7 +82,7 @@ export const Contact = () => {
             viewport={{ once: true }}
             className="pt-4"
           >
-            <form onSubmit={handleSubmit} className="space-y-12">
+            {/* <form onSubmit={handleSubmit} className="space-y-12">
               {/* Fila 1: Nombre y RUC */}
               <div className="grid md:grid-cols-2 gap-12">
                 <div className="relative group">
@@ -199,7 +199,7 @@ export const Contact = () => {
                   </p>
                 )}
               </div>
-            </form>
+            </form> */}
           </motion.div>
         </div>
       </div>
