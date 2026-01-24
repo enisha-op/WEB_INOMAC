@@ -16,7 +16,7 @@ export default function Home() {
       <CatalogElite />
       {/* <Specs /> */}
       <Services />
-      <Finance />
+      {/* <Finance /> */}
       <Contact />
       <Footer />
       <WhatsAppBtn />
