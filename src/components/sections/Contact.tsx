@@ -85,7 +85,7 @@ export const Contact = () => {
 
             {/*
             <form onSubmit={handleSubmit} className="space-y-12">
-              {/* Fila 1: Nombre y RUC */}
+              
               <div className="grid md:grid-cols-2 gap-12">
                 <div className="relative group">
                   <input 
@@ -115,7 +115,7 @@ export const Contact = () => {
                 </div>
               </div>
 
-              {/* Fila 2: Email y Teléfono */}
+              
               <div className="grid md:grid-cols-2 gap-12">
                 <div className="relative group">
                   <input 
@@ -145,7 +145,7 @@ export const Contact = () => {
                 </div>
               </div>
 
-              {/* Fila 3: Modelo */}
+            
               <div className="relative group">
                 <input 
                   name="model"
@@ -160,7 +160,7 @@ export const Contact = () => {
                 </label>
               </div>
 
-              {/* Fila 4: Mensaje */}
+              
               <div className="relative group">
                 <textarea 
                   name="message"
