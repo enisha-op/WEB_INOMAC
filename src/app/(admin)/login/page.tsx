@@ -1,19 +1,46 @@
 'use client'
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Loader2, AlertCircle } from "lucide-react";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  
   const router = useRouter();
+  const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Simulación de login - Luego conectarás con Flask
-    if (email === "admin@inomac.pe" && password === "admin123") {
-      router.push("/dashboard");
-    } else {
-      alert("Credenciales incorrectas");
+    setLoading(true);
+    setError(null);
+
+    try {
+      // Llamada real a tu API en Railway
+      const response = await fetch(`${API_URL}/admin/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          username: "admin", // Usamos el username que definimos en app.py
+          password: password 
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Guardamos el estado de sesión (puedes usar localStorage por ahora)
+        localStorage.setItem("isLoggedIn", "true");
+        router.push("/dashboard");
+      } else {
+        setError(data.error || "Credenciales incorrectas");
+      }
+    } catch (err) {
+      setError("Error de conexión con el servidor");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -27,7 +54,14 @@ export default function LoginPage() {
           <p className="mt-4 text-white/40 text-[10px] uppercase tracking-[0.2em] font-bold">Security Access</p>
         </div>
 
+        {error && (
+          <div className="bg-red-500/10 border border-red-500 p-4 flex items-center gap-3 text-red-500 text-[10px] font-bold uppercase italic">
+            <AlertCircle size={16} /> {error}
+          </div>
+        )}
+
         <form onSubmit={handleLogin} className="space-y-10">
+          {/* Email Input */}
           <div className="relative group">
             <input 
               type="email" 
@@ -42,6 +76,7 @@ export default function LoginPage() {
             </label>
           </div>
 
+          {/* Password Input */}
           <div className="relative group">
             <input 
               type="password" 
@@ -56,8 +91,11 @@ export default function LoginPage() {
             </label>
           </div>
 
-          <button className="w-full bg-[#E60000] text-white py-6 font-black uppercase text-[12px] tracking-[0.4em] hover:brightness-110 transition-all shadow-2xl active:scale-[0.98]">
-            Entrar al Panel
+          <button 
+            disabled={loading}
+            className="w-full bg-[#E60000] text-white py-6 font-black uppercase text-[12px] tracking-[0.4em] hover:brightness-110 transition-all shadow-2xl active:scale-[0.98] flex items-center justify-center gap-4"
+          >
+            {loading ? <Loader2 className="animate-spin" size={20} /> : "Entrar al Panel"}
           </button>
         </form>
       </div>
