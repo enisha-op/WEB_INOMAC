@@ -172,7 +172,7 @@ export const Contact = () => {
                 {status === 'success' && <div className="bg-green-50 text-green-600 p-4 border-l-4 border-green-600 font-bold uppercase text-[10px] tracking-widest text-center">Solicitud recibida correctamente. Nos contactaremos pronto.</div>}
                 {status === 'error' && <div className="bg-red-50 text-red-600 p-4 border-l-4 border-red-600 font-bold uppercase text-[10px] tracking-widest flex items-center gap-2"><AlertCircle size={14}/> {errorMessage}</div>}
               </div>
-            </form>    */}
+            </form>    
           </motion.div>
         </div>
       </div>
