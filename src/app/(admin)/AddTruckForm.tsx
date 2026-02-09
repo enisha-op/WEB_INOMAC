@@ -63,23 +63,23 @@ export default function AddTruckForm({ onSuccess, initialData }: AddTruckFormPro
   return (
     <form onSubmit={handleSubmit} className="bg-[var(--card-bg)] p-6 md:p-10 border border-theme space-y-6 md:space-y-8 shadow-2xl max-h-[90vh] overflow-y-auto custom-scrollbar rounded-sm">
       
-      {/* HEADER RESPONSIVE: Botón de cierre más accesible en móvil */}
+      {/* HEADER RESPONSIVE */}
       <div className="flex justify-between items-center sticky -top-6 md:-top-10 bg-[var(--card-bg)] z-10 pb-4 border-b border-theme mb-4">
         <h2 className="text-lg md:text-2xl font-black uppercase italic text-primary leading-tight">
           {initialData ? 'Actualizar Unidad' : 'Nuevo Camión'}
         </h2>
         <button type="button" onClick={onSuccess} className="text-muted-theme hover:text-primary transition-colors p-2">
-          <X size={24}/>
+          <X className="w-6 h-6 md:w-7 md:h-7" />
         </button>
       </div>
 
       {error && (
         <div className="bg-red-500/10 border border-red-500 p-4 flex items-center gap-3 text-red-500 text-[10px] md:text-xs font-bold uppercase">
-          <AlertCircle size={18} className="shrink-0" /> {error}
+          <AlertCircle className="w-5 h-5 shrink-0" /> {error}
         </div>
       )}
       
-      {/* GRID PRINCIPAL: 1 columna en móvil, 2 en pantallas LG */}
+      {/* GRID PRINCIPAL */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12">
         
         {/* COLUMNA TÉCNICA */}
@@ -104,7 +104,7 @@ export default function AddTruckForm({ onSuccess, initialData }: AddTruckFormPro
           <div className="space-y-4">
             <label className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-primary">Galería y Ficha</label>
             
-            {/* DROPZONE IMAGEN ADAPTADO */}
+            {/* DROPZONE IMAGEN */}
             <div className="relative group border-2 border-dashed border-theme p-6 flex flex-col items-center justify-center min-h-[160px] md:min-h-[200px] bg-black/30 hover:border-primary/50 transition-all cursor-pointer">
               {previewImage ? (
                 <div className="w-full text-center">
@@ -113,17 +113,17 @@ export default function AddTruckForm({ onSuccess, initialData }: AddTruckFormPro
                 </div>
               ) : (
                 <div className="text-center opacity-30 group-hover:opacity-100 transition-opacity">
-                  <ImageIcon size={32} className="mx-auto mb-2" />
+                  <ImageIcon className="w-8 h-8 md:w-10 md:h-10 mx-auto mb-2" />
                   <p className="text-[9px] font-bold italic uppercase">Subir Foto Frontal</p>
                 </div>
               )}
               <input type="file" name="image_front" onChange={handleImageChange} accept="image/*" className="absolute inset-0 opacity-0 cursor-pointer" />
             </div>
 
-            {/* SELECTOR PDF ADAPTADO */}
+            {/* SELECTOR PDF */}
             <div className="relative border border-theme p-4 md:p-5 bg-black/30 flex items-center gap-3 md:gap-4 group hover:border-primary/50 transition-all">
               <div className="bg-primary/10 p-2 md:p-3 text-primary group-hover:bg-primary group-hover:text-white transition-colors">
-                <FileText size={20} md:size={24} />
+                <FileText className="w-5 h-5 md:w-6 md:h-6" />
               </div>
               <div className="flex-grow overflow-hidden">
                 <p className="text-[9px] md:text-[10px] font-black uppercase tracking-tighter truncate">
@@ -137,14 +137,14 @@ export default function AddTruckForm({ onSuccess, initialData }: AddTruckFormPro
         </div>
       </div>
 
-      {/* BOTÓN DE ACCIÓN: Siempre visible en la parte inferior */}
+      {/* BOTÓN DE ACCIÓN */}
       <div className="pt-4 border-t border-theme">
         <button 
           type="submit"
           disabled={loading}
           className="w-full bg-primary text-white py-4 md:py-6 font-black uppercase tracking-[0.2em] md:tracking-[0.4em] text-[10px] md:text-xs hover:bg-red-700 transition-all shadow-2xl flex items-center justify-center gap-3"
         >
-          <Save size={18} />
+          <Save className="w-4 h-4 md:w-5 md:h-5" />
           {loading ? "SINCRONIZANDO..." : "GUARDAR EN SISTEMA"}
         </button>
       </div>
