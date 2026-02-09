@@ -1,27 +1,23 @@
 'use client'
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { LayoutDashboard, Truck, LogOut, FileText } from "lucide-react"; // Importamos FileText
+import { usePathname, useRouter } from "next/navigation"; // Importamos useRouter
+import { LayoutDashboard, Truck, LogOut, FileText } from "lucide-react";
 
 export const AdminSidebar = () => {
   const pathname = usePathname();
+  const router = useRouter(); // Inicializamos el router
+
+  const handleLogout = () => {
+    // 1. Eliminamos la marca de sesión
+    localStorage.removeItem("isLoggedIn");
+    // 2. Mandamos al usuario de vuelta al login
+    router.push("/login");
+  };
 
   const menuItems = [
-    { 
-      name: "Dashboard", 
-      href: "/dashboard", 
-      icon: <LayoutDashboard size={20} /> 
-    },
-    { 
-      name: "Cotizaciones", 
-      href: "/quotes", // Nueva ruta separada
-      icon: <FileText size={20} /> 
-    },
-    { 
-      name: "Inventario", 
-      href: "/inventory", 
-      icon: <Truck size={20} /> 
-    },
+    { name: "Dashboard", href: "/dashboard", icon: <LayoutDashboard size={20} /> },
+    { name: "Cotizaciones", href: "/quotes", icon: <FileText size={20} /> },
+    { name: "Inventario", href: "/inventory", icon: <Truck size={20} /> },
   ];
 
   return (
@@ -50,7 +46,11 @@ export const AdminSidebar = () => {
         </nav>
       </div>
 
-      <button className="flex items-center gap-4 p-4 text-muted-theme hover:text-red-500 transition-colors text-[10px] font-black uppercase tracking-widest border-t border-theme pt-8">
+      {/* Botón con la función de cerrar sesión */}
+      <button 
+        onClick={handleLogout}
+        className="flex items-center gap-4 p-4 text-muted-theme hover:text-red-500 transition-colors text-[10px] font-black uppercase tracking-widest border-t border-theme pt-8 w-full"
+      >
         <LogOut size={20} />
         Cerrar Sesión
       </button>
