@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
-// --- COMPONENTE INTERNO: MODAL PARA CREAR COTIZACIÓN ---
+// --- COMPONENTE INTERNO: MODAL PARA CREAR COTIZACIÓN (LÓGICA ANTI-DUPLICADOS) ---
 function CreateQuoteModal({ onClose, onSuccess, API_URL }: any) {
   const [customers, setCustomers] = useState([]);
   const [trucks, setTrucks] = useState([]);
@@ -23,8 +23,9 @@ function CreateQuoteModal({ onClose, onSuccess, API_URL }: any) {
 
   useEffect(() => {
     const fetchData = async () => {
+      // Cargamos registros manuales para poder convertirlos en cotizaciones reales
       const [resCust, resTrucks] = await Promise.all([
-        fetch(`${API_URL}/admin/quotes?search=`),
+        fetch(`${API_URL}/admin/quotes?search=&manual=true`), 
         fetch(`${API_URL}/admin/trucks`)
       ]);
       const dataCust = await resCust.json();
@@ -43,23 +44,37 @@ function CreateQuoteModal({ onClose, onSuccess, API_URL }: any) {
     const totalWithIgv = subtotal * 1.18;
 
     try {
-      const res = await fetch(`${API_URL}/admin/quotes/manual`, {
-        method: 'POST',
+      // 1. ACTUALIZAR MONTOS: Convierte el registro de $0 en monto real
+      const resAmounts = await fetch(`${API_URL}/admin/quotes/${selectedCustomerId}/amounts`, {
+        method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          customer_id: selectedCustomerId,
-          model: selectedTruck.name,
-          quantity,
-          unit_price: customPrice,
-          total_amount: totalWithIgv
+        body: JSON.stringify({ 
+          total_amount: totalWithIgv, 
+          items: [{ name: selectedTruck.name, quantity, unit_price: customPrice }] 
         })
       });
-      if (res.ok) {
+
+      // 2. ACTUALIZAR METADATOS: Cambia "REGISTRO MANUAL" por el nombre de la unidad
+      const resData = await fetch(`${API_URL}/admin/quotes/${selectedCustomerId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          name: customerData.name,
+          model: selectedTruck.name, 
+          message: "Cotización consolidada desde el panel administrativo." 
+        })
+      });
+
+      if (resAmounts.ok && resData.ok) {
         onSuccess();
         onClose();
       }
-    } catch (e) { console.error(e); }
-    finally { setLoading(false); }
+    } catch (e) { 
+      console.error(e); 
+      alert("Error al sincronizar el registro");
+    } finally { 
+      setLoading(false); 
+    }
   };
 
   return (
@@ -128,7 +143,7 @@ function CreateQuoteModal({ onClose, onSuccess, API_URL }: any) {
 
           <button onClick={handleSubmit} disabled={loading} className="w-full bg-primary text-white py-6 font-black uppercase tracking-[0.3em] text-xs hover:bg-red-700 transition-all flex items-center justify-center gap-4 shadow-xl">
             {loading ? <Loader2 className="animate-spin w-5 h-5" /> : <Save className="w-5 h-5"/>}
-            {loading ? "PROCESANDO..." : "REGISTRAR COTIZACIÓN"}
+            {loading ? "PROCESANDO..." : "CONSOLIDAR REGISTRO"}
           </button>
         </div>
       </motion.div>
@@ -209,7 +224,7 @@ export default function QuotesPage() {
       if (resp.ok) {
         setIsEditingAmount(false);
         fetchQuotes();
-        alert("Montos sincronizados.");
+        alert("Montos sincronizados correctamente.");
       }
     } catch (error) { console.error(error); }
   };
@@ -251,12 +266,12 @@ export default function QuotesPage() {
           <h1 className="text-3xl md:text-4xl font-black uppercase tracking-tighter italic">Gestión de <span className="text-primary">Cotizaciones</span></h1>
           <p className="text-muted-theme text-[10px] md:text-xs font-bold uppercase tracking-widest mt-2">Seguimiento de leads y cierre de ventas Cloud</p>
         </div>
-        {/* <button 
+        <button 
           onClick={() => setShowCreateModal(true)}
           className="w-full md:w-auto bg-white text-black px-8 py-4 font-black uppercase text-[10px] tracking-widest hover:bg-primary hover:text-white transition-all shadow-2xl flex items-center justify-center gap-3"
         >
           <Save className="w-4 h-4" /> Nueva Cotización
-        </button> */}
+        </button>
       </div>
 
       <div className="bg-[var(--card-bg)] border border-theme shadow-2xl overflow-hidden rounded-sm">
@@ -338,7 +353,7 @@ export default function QuotesPage() {
       {/* MODALES */}
       <AnimatePresence>
         {showCreateModal && (
-          <CreateQuoteModal API_URL={API_URL} onClose={() => setShowCreateModal(false)} onSuccess={() => { fetchQuotes(); alert("Cotización generada"); }} />
+          <CreateQuoteModal API_URL={API_URL} onClose={() => setShowCreateModal(false)} onSuccess={() => { fetchQuotes(); alert("Sincronización finalizada"); }} />
         )}
       </AnimatePresence>
 
