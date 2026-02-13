@@ -23,7 +23,6 @@ function CreateQuoteModal({ onClose, onSuccess, API_URL }: any) {
 
   useEffect(() => {
     const fetchData = async () => {
-      // Cargamos registros manuales para poder convertirlos en cotizaciones reales
       const [resCust, resTrucks] = await Promise.all([
         fetch(`${API_URL}/admin/quotes?search=&manual=true`), 
         fetch(`${API_URL}/admin/trucks`)
@@ -44,7 +43,6 @@ function CreateQuoteModal({ onClose, onSuccess, API_URL }: any) {
     const totalWithIgv = subtotal * 1.18;
 
     try {
-      // 1. ACTUALIZAR MONTOS: Convierte el registro de $0 en monto real
       const resAmounts = await fetch(`${API_URL}/admin/quotes/${selectedCustomerId}/amounts`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -54,7 +52,6 @@ function CreateQuoteModal({ onClose, onSuccess, API_URL }: any) {
         })
       });
 
-      // 2. ACTUALIZAR METADATOS: Cambia "REGISTRO MANUAL" por el nombre de la unidad
       const resData = await fetch(`${API_URL}/admin/quotes/${selectedCustomerId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -229,6 +226,22 @@ export default function QuotesPage() {
     } catch (error) { console.error(error); }
   };
 
+  // --- LÓGICA DE WHATSAPP MEJORADA ---
+  const handleWhatsAppOpen = () => {
+    if (!selectedQuote) return;
+
+    // 1. Limpiamos el número de símbolos como +, espacios o guiones
+    const cleanPhone = selectedQuote.phone.replace(/\D/g, "");
+    
+    // 2. Preparamos el mensaje codificado con el monto actual calculado
+    const msg = encodeURIComponent(
+      `Hola ${selectedQuote.name}, te saluda INOMAC. Te adjuntamos el seguimiento de tu cotización por $${totalConIgv.toLocaleString()}.`
+    );
+
+    // 3. Abrimos la URL oficial de WhatsApp
+    window.open(`https://wa.me/${cleanPhone}?text=${msg}`, '_blank');
+  };
+
   const generatePDF = (quote: any) => {
     const doc = new jsPDF();
     doc.setFillColor(230, 0, 0);
@@ -395,7 +408,7 @@ export default function QuotesPage() {
                   <p className="text-[10px] font-black uppercase tracking-[0.4em] text-muted-theme mb-2 col-span-2 hidden lg:block">Operaciones</p>
                   {!isEditingAmount ? <button onClick={() => setIsEditingAmount(true)} className="w-full bg-theme border border-theme p-3 md:p-4 text-[9px] font-black uppercase flex items-center justify-center gap-2 hover:bg-primary transition-all"><Calculator size={14} /> Editar</button> : <button onClick={handleUpdateAmounts} className="w-full bg-primary text-white p-3 md:p-4 text-[9px] font-black uppercase flex items-center justify-center gap-2 shadow-lg"><Save size={14} /> Guardar</button>}
                   <button onClick={() => generatePDF(selectedQuote)} className="w-full bg-theme border border-theme p-3 md:p-4 text-[9px] font-black uppercase flex items-center justify-center gap-2 hover:bg-white hover:text-black transition-all"><Download size={14} /> PDF</button>
-                  <button onClick={() => { const phone = selectedQuote.phone || ""; const msg = encodeURIComponent(`Hola ${selectedQuote.name}, te saluda INOMAC. Cotización Nº${selectedQuote.id} por $${totalConIgv.toLocaleString()}.`); window.open(`https://wa.me/51${phone.replace(/\s+/g, '')}?text=${msg}`, '_blank'); }} className="w-full bg-green-600 text-white p-3 md:p-4 text-[9px] font-black uppercase flex items-center justify-center gap-2 shadow-xl col-span-2 lg:col-span-1"><Phone size={14} /> WhatsApp</button>
+                  <button onClick={handleWhatsAppOpen} className="w-full bg-green-600 text-white p-3 md:p-4 text-[9px] font-black uppercase flex items-center justify-center gap-2 shadow-xl col-span-2 lg:col-span-1"><Phone size={14} /> WhatsApp</button>
                 </div>
                 <button onClick={() => setSelectedQuote(null)} className="mt-6 lg:mt-10 w-full text-[9px] font-black uppercase text-muted-theme hover:text-primary transition-colors py-2">Cerrar Ficha</button>
               </div>
