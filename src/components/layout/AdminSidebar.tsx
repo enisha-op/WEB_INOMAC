@@ -19,6 +19,7 @@ export const AdminSidebar = () => {
     { name: "Dashboard", href: "/dashboard", icon: <LayoutDashboard size={20} /> },
     { name: "Cotizaciones", href: "/quotes", icon: <FileText size={20} /> },
     { name: "Inventario", href: "/inventory", icon: <Truck size={20} /> },
+    { name: "Clientes", href: "/customers", icon: <Truck size={20} /> },
   ];
 
   const closeMenu = () => setIsOpen(false);

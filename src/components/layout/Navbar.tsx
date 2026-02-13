@@ -17,7 +17,7 @@ export const Navbar = () => {
 
   const navLinks = [
     { name: 'Modelos', href: '#catalogo' },
-    { name: 'Financiamiento', href: '#financiamiento' },
+    // { name: 'Financiamiento', href: '#financiamiento' },
     { name: 'Servicios', href: '#servicios' },
     { name: 'Contacto', href: '#contacto' },
   ];
