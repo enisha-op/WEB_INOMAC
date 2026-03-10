@@ -2,13 +2,13 @@
 import { useState, useEffect } from "react";
 import { 
   Search, X, Download, Save, Calculator, Phone, Loader2, User, Mail, Truck, 
-  Hash, ChevronLeft, ChevronRight 
+  Hash, ChevronLeft, ChevronRight, Plus, Trash2 
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
-// --- COMPONENTE INTERNO: MODAL PARA CREAR COTIZACIÓN (LÓGICA ANTI-DUPLICADOS) ---
+// --- COMPONENTE INTERNO: MODAL PARA CREAR COTIZACIÓN ---
 function CreateQuoteModal({ onClose, onSuccess, API_URL }: any) {
   const [customers, setCustomers] = useState([]);
   const [trucks, setTrucks] = useState([]);
@@ -151,6 +151,7 @@ function CreateQuoteModal({ onClose, onSuccess, API_URL }: any) {
 // --- COMPONENTE PRINCIPAL ---
 export default function QuotesPage() {
   const [quotes, setQuotes] = useState([]);
+  const [trucks, setTrucks] = useState<any[]>([]); // Estado para cargar inventario
   const [statusFilter, setStatusFilter] = useState('Todos');
   const [searchTerm, setSearchTerm] = useState('');
   const [page, setPage] = useState(1);
@@ -164,14 +165,30 @@ export default function QuotesPage() {
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
+  // Cargar camiones para tenerlos disponibles en la edición
+  useEffect(() => {
+    if (API_URL) {
+      fetch(`${API_URL}/admin/trucks`)
+        .then(res => res.json())
+        .then(data => setTrucks(data || []))
+        .catch(err => console.error("Error loading trucks:", err));
+    }
+  }, [API_URL]);
+
   useEffect(() => {
     if (selectedQuote) {
+      // Intentar procesar el string de modelos "Hino 300, Hino 500" a un array de objetos
+      // Si el backend guardó cantidades como "Hino 300 (2)", este parser básico las separará.
       const models = selectedQuote.model.split(',').map((m: string) => m.trim());
-      const items = models.map((name: string) => ({
-        name,
-        quantity: selectedQuote.quantity || 1,
-        unit_price: selectedQuote.unit_price || 0
-      }));
+      const items = models.map((name: string) => {
+        // Limpiar posibles cantidades en el string "(2)" si existen
+        const cleanName = name.replace(/\s\(\d+\)$/, "");
+        return {
+          name: cleanName,
+          quantity: selectedQuote.quantity || 1,
+          unit_price: selectedQuote.unit_price || 0
+        }
+      });
       setQuoteItems(items);
     }
   }, [selectedQuote]);
@@ -195,6 +212,21 @@ export default function QuotesPage() {
     if (API_URL) fetchQuotes(); 
   }, [statusFilter, searchTerm, page, API_URL]);
 
+  const handleAddItem = () => {
+    // Agrega el primer camión de la lista por defecto o uno genérico
+    const defaultTruck = trucks[0];
+    setQuoteItems([...quoteItems, { 
+      name: defaultTruck?.name || "Nuevo Modelo", 
+      quantity: 1, 
+      unit_price: defaultTruck?.price || 0 
+    }]);
+  };
+
+  const handleRemoveItem = (index: number) => {
+    if (quoteItems.length <= 1) return alert("Debe haber al menos un item");
+    setQuoteItems(quoteItems.filter((_, i) => i !== index));
+  };
+
   const handleStatusChange = async (id: number, newStatus: string) => {
     try {
       const resp = await fetch(`${API_URL}/admin/quotes/${id}/status`, {
@@ -209,8 +241,8 @@ export default function QuotesPage() {
   };
 
   const handleUpdateAmounts = async () => {
-    if (quoteItems.some(item => item.quantity <= 0 || item.unit_price <= 0)) {
-      alert("ERROR: Datos inválidos"); return;
+    if (quoteItems.some(item => item.quantity <= 0)) {
+      alert("ERROR: Las cantidades deben ser mayores a 0"); return;
     }
     try {
       const resp = await fetch(`${API_URL}/admin/quotes/${selectedQuote.id}/amounts`, {
@@ -221,24 +253,17 @@ export default function QuotesPage() {
       if (resp.ok) {
         setIsEditingAmount(false);
         fetchQuotes();
-        alert("Montos sincronizados correctamente.");
+        alert("Cotización actualizada y montos sincronizados.");
       }
     } catch (error) { console.error(error); }
   };
 
-  // --- LÓGICA DE WHATSAPP MEJORADA ---
   const handleWhatsAppOpen = () => {
     if (!selectedQuote) return;
-
-    // 1. Limpiamos el número de símbolos como +, espacios o guiones
     const cleanPhone = selectedQuote.phone.replace(/\D/g, "");
-    
-    // 2. Preparamos el mensaje codificado con el monto actual calculado
     const msg = encodeURIComponent(
       `Hola ${selectedQuote.name}, te saluda INOMAC. Te adjuntamos el seguimiento de tu cotización por $${totalConIgv.toLocaleString()}.`
     );
-
-    // 3. Abrimos la URL oficial de WhatsApp
     window.open(`https://wa.me/${cleanPhone}?text=${msg}`, '_blank');
   };
 
@@ -373,45 +398,107 @@ export default function QuotesPage() {
       <AnimatePresence>
         {selectedQuote && (
           <div className="fixed inset-0 z-[300] flex items-center justify-center p-2 sm:p-4">
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setSelectedQuote(null)} className="absolute inset-0 bg-black/95 backdrop-blur-md" />
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => {if(!isEditingAmount) setSelectedQuote(null)}} className="absolute inset-0 bg-black/95 backdrop-blur-md" />
             <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="bg-[var(--card-bg)] border border-theme w-full max-w-6xl relative z-[201] rounded-sm shadow-2xl overflow-hidden flex flex-col lg:flex-row max-h-[90vh]">
+              
               <div className="flex-grow p-5 md:p-12 overflow-y-auto border-b lg:border-b-0 lg:border-r border-theme custom-scrollbar">
                 <div className="mb-8 flex flex-col sm:flex-row justify-between items-start gap-4">
                   <div><span className="text-primary font-black italic text-3xl md:text-4xl tracking-tighter uppercase">INOMAC</span><h2 className="text-sm md:text-xl font-bold uppercase tracking-widest mt-1">Cotización Nº {selectedQuote.id.toString().padStart(6, '0')}</h2></div>
                   <div className="text-left sm:text-right uppercase font-black"><p className="text-[9px] text-muted-theme">Registro Cloud</p><p className="text-[10px] md:text-xs italic">{selectedQuote.date}</p></div>
                 </div>
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8 text-[10px] font-bold uppercase">
                   <div className="space-y-3"><div><p className="text-muted-theme text-[8px] mb-1">Titular</p><p className="text-sm font-black text-primary tracking-tight">{selectedQuote.name}</p></div><div><p className="text-muted-theme text-[8px] mb-1">RUC / DNI</p><p>{selectedQuote.ruc || 'Natural'}</p></div></div>
                   <div className="space-y-3 sm:text-right"><div><p className="text-muted-theme text-[8px] mb-1">Contacto</p><p className="lowercase font-medium text-xs mb-1">{selectedQuote.email}</p><p>{selectedQuote.phone}</p></div></div>
                 </div>
+
                 <div className="border border-theme overflow-x-auto mb-6">
                   <table className="w-full text-left min-w-[500px]">
                     <thead className="bg-primary/5 text-[9px] font-black uppercase tracking-widest border-b border-theme">
-                      <tr><th className="p-4">Descripción</th><th className="p-4 text-center w-20">Cant.</th><th className="p-4 text-right">Precio Unit.</th><th className="p-4 text-right">Subtotal</th></tr>
+                      <tr><th className="p-4">Descripción de Unidad</th><th className="p-4 text-center w-20">Cant.</th><th className="p-4 text-right">Precio Unit.</th><th className="p-4 text-right">Subtotal</th></tr>
                     </thead>
                     <tbody className="text-[11px] font-bold uppercase">
                       {quoteItems.map((item, idx) => (
                         <tr key={idx} className="border-b border-theme last:border-0 hover:bg-white/[0.02]">
-                          <td className="p-4 text-primary font-black italic">{item.name}</td>
-                          <td className="p-4 text-center">{isEditingAmount ? <input type="number" value={item.quantity} onChange={(e) => { const n = [...quoteItems]; n[idx].quantity = parseInt(e.target.value); setQuoteItems(n); }} className="w-14 bg-theme border border-theme p-1 text-center" /> : item.quantity}</td>
-                          <td className="p-4 text-right">{isEditingAmount ? <input type="number" value={item.unit_price} onChange={(e) => { const n = [...quoteItems]; n[idx].unit_price = parseFloat(e.target.value); setQuoteItems(n); }} className="w-20 bg-theme border border-theme p-1 text-right" /> : `$${item.unit_price.toLocaleString()}`}</td>
-                          <td className="p-4 text-right font-black">${(item.quantity * item.unit_price).toLocaleString()}</td>
+                          <td className="p-4">
+                            {isEditingAmount ? (
+                              <select 
+                                className="w-full bg-theme border border-white/10 p-2 text-primary font-black italic outline-none focus:border-primary"
+                                value={item.name}
+                                onChange={(e) => {
+                                  const selectedT = trucks.find(t => t.name === e.target.value);
+                                  const n = [...quoteItems];
+                                  n[idx].name = e.target.value;
+                                  if (selectedT) n[idx].unit_price = selectedT.price;
+                                  setQuoteItems(n);
+                                }}
+                              >
+                                {trucks.map(t => <option key={t.id} value={t.name}>{t.name}</option>)}
+                              </select>
+                            ) : (
+                              <span className="text-primary font-black italic">{item.name}</span>
+                            )}
+                          </td>
+                          <td className="p-4 text-center">
+                            {isEditingAmount ? (
+                              <input type="number" value={item.quantity} onChange={(e) => { const n = [...quoteItems]; n[idx].quantity = parseInt(e.target.value) || 0; setQuoteItems(n); }} className="w-14 bg-theme border border-theme p-1 text-center" />
+                            ) : item.quantity}
+                          </td>
+                          <td className="p-4 text-right">
+                            {isEditingAmount ? (
+                              <input type="number" value={item.unit_price} onChange={(e) => { const n = [...quoteItems]; n[idx].unit_price = parseFloat(e.target.value) || 0; setQuoteItems(n); }} className="w-24 bg-theme border border-theme p-1 text-right" />
+                            ) : `$${item.unit_price.toLocaleString()}`}
+                          </td>
+                          <td className="p-4 text-right font-black flex items-center justify-end gap-3">
+                            ${(item.quantity * item.unit_price).toLocaleString()}
+                            {isEditingAmount && (
+                              <button onClick={() => handleRemoveItem(idx)} className="text-red-500 hover:text-red-700 transition-colors">
+                                <Trash2 size={14} />
+                              </button>
+                            )}
+                          </td>
                         </tr>
                       ))}
+
+                      {isEditingAmount && (
+                        <tr>
+                          <td colSpan={4} className="p-4">
+                            <button 
+                              onClick={handleAddItem}
+                              className="w-full py-3 border-2 border-dashed border-primary/20 text-primary text-[9px] font-black uppercase hover:bg-primary/5 transition-all flex items-center justify-center gap-2"
+                            >
+                              <Plus size={14} /> Añadir otra unidad al presupuesto
+                            </button>
+                          </td>
+                        </tr>
+                      )}
                     </tbody>
                   </table>
                 </div>
-                <div className="flex justify-end"><div className="w-full sm:max-w-xs space-y-1 text-[9px] font-black uppercase tracking-widest"><div className="flex justify-between p-2 bg-primary/5"><span>Subtotal:</span><span>${subtotal.toLocaleString()}</span></div><div className="flex justify-between p-2 bg-primary/5"><span className="text-red-600">IGV (18%):</span><span>${igv.toLocaleString()}</span></div><div className="flex justify-between p-3 bg-primary text-white text-sm"><span>TOTAL USD:</span><span>${totalConIgv.toLocaleString()}</span></div></div></div>
+
+                <div className="flex justify-end">
+                  <div className="w-full sm:max-w-xs space-y-1 text-[9px] font-black uppercase tracking-widest">
+                    <div className="flex justify-between p-2 bg-primary/5"><span>Subtotal:</span><span>${subtotal.toLocaleString()}</span></div>
+                    <div className="flex justify-between p-2 bg-primary/5"><span className="text-red-600">IGV (18%):</span><span>${igv.toLocaleString()}</span></div>
+                    <div className="flex justify-between p-3 bg-primary text-white text-sm"><span>TOTAL USD:</span><span>${totalConIgv.toLocaleString()}</span></div>
+                  </div>
+                </div>
               </div>
+
               <div className="w-full lg:w-80 bg-primary/5 p-6 md:p-8 flex flex-col justify-between border-t lg:border-t-0 border-theme">
                 <div className="grid grid-cols-2 lg:grid-cols-1 gap-3 md:gap-4">
                   <p className="text-[10px] font-black uppercase tracking-[0.4em] text-muted-theme mb-2 col-span-2 hidden lg:block">Operaciones</p>
-                  {!isEditingAmount ? <button onClick={() => setIsEditingAmount(true)} className="w-full bg-theme border border-theme p-3 md:p-4 text-[9px] font-black uppercase flex items-center justify-center gap-2 hover:bg-primary transition-all"><Calculator size={14} /> Editar</button> : <button onClick={handleUpdateAmounts} className="w-full bg-primary text-white p-3 md:p-4 text-[9px] font-black uppercase flex items-center justify-center gap-2 shadow-lg"><Save size={14} /> Guardar</button>}
-                  <button onClick={() => generatePDF(selectedQuote)} className="w-full bg-theme border border-theme p-3 md:p-4 text-[9px] font-black uppercase flex items-center justify-center gap-2 hover:bg-white hover:text-black transition-all"><Download size={14} /> PDF</button>
-                  <button onClick={handleWhatsAppOpen} className="w-full bg-green-600 text-white p-3 md:p-4 text-[9px] font-black uppercase flex items-center justify-center gap-2 shadow-xl col-span-2 lg:col-span-1"><Phone size={14} /> WhatsApp</button>
+                  {!isEditingAmount ? (
+                    <button onClick={() => setIsEditingAmount(true)} className="w-full bg-theme border border-theme p-3 md:p-4 text-[9px] font-black uppercase flex items-center justify-center gap-2 hover:bg-primary transition-all transition-colors"><Calculator size={14} /> Editar Cotización</button>
+                  ) : (
+                    <button onClick={handleUpdateAmounts} className="w-full bg-primary text-white p-3 md:p-4 text-[9px] font-black uppercase flex items-center justify-center gap-2 shadow-lg"><Save size={14} /> Guardar Cambios</button>
+                  )}
+                  <button onClick={() => generatePDF(selectedQuote)} className="w-full bg-theme border border-theme p-3 md:p-4 text-[9px] font-black uppercase flex items-center justify-center gap-2 hover:bg-white hover:text-black transition-all"><Download size={14} /> Descargar PDF</button>
+                  <button onClick={handleWhatsAppOpen} className="w-full bg-green-600 text-white p-3 md:p-4 text-[9px] font-black uppercase flex items-center justify-center gap-2 shadow-xl col-span-2 lg:col-span-1"><Phone size={14} /> Enviar WhatsApp</button>
                 </div>
                 <button onClick={() => setSelectedQuote(null)} className="mt-6 lg:mt-10 w-full text-[9px] font-black uppercase text-muted-theme hover:text-primary transition-colors py-2">Cerrar Ficha</button>
               </div>
+
             </motion.div>
           </div>
         )}
