@@ -17,7 +17,6 @@ export default function CustomersPage() {
   const [loadingList, setLoadingList] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   
-  // ESTADOS PARA COTIZACIÓN MÚLTIPLE
   const [selectedCustomer, setSelectedCustomer] = useState<any>(null);
   const [trucks, setTrucks] = useState([]);
   const [quoteItems, setQuoteItems] = useState<any[]>([]); 
@@ -31,25 +30,29 @@ export default function CustomersPage() {
   const subtotal = quoteItems.reduce((acc, item) => acc + (item.quantity * item.unitPrice), 0);
   const totalConIgv = subtotal * 1.18;
 
+  // 1. OBTENER SOLO REGISTROS ÚNICOS DEL DIRECTORIO
   const fetchCustomers = async () => {
     setLoadingList(true);
     try {
-      const response = await fetch(`${API_URL}/admin/quotes?search=${searchTerm}&page=${page}&per_page=15`);
+      // USAMOS EL NUEVO ENDPOINT QUE FILTRA POR "REGISTRO MANUAL (ADMIN)"
+      const response = await fetch(`${API_URL}/admin/customers_directory?search=${searchTerm}&page=${page}`);
       const data = await response.json();
       setCustomers(data.quotes || []);
       setTotalPages(data.total_pages || 1);
-    } catch (error) { console.error(error); }
-    finally { setLoadingList(false); }
+    } catch (error) { 
+      console.error("Error fetching customers:", error); 
+    } finally { 
+      setLoadingList(false); 
+    }
   };
 
   useEffect(() => {
     if (API_URL) {
-        fetchCustomers();
-        fetch(`${API_URL}/admin/trucks`).then(res => res.json()).then(data => setTrucks(data));
+      fetchCustomers();
+      fetch(`${API_URL}/admin/trucks`).then(res => res.json()).then(data => setTrucks(data));
     }
   }, [searchTerm, page, API_URL]);
 
-  // FUNCIONES CORREGIDAS PARA MANEJAR ÍTEMS
   const addVehicleRow = () => {
     setQuoteItems([...quoteItems, { id: Date.now(), truckId: "", name: "", quantity: 1, unitPrice: 0 }]);
   };
@@ -64,90 +67,91 @@ export default function CustomersPage() {
     ));
   };
 
+  // 2. GENERAR COTIZACIÓN VINCULADA AL CLIENTE SELECCIONADO
   const handleCreateQuote = async () => {
-    if (quoteItems.length === 0) return alert("Agrega al menos un vehículo a la lista");
-    if (quoteItems.some(item => !item.name)) return alert("Asegúrate de seleccionar un modelo en todas las filas");
+    if (quoteItems.length === 0) return alert("Agrega al menos un vehículo");
+    if (quoteItems.some(item => !item.name)) return alert("Selecciona un modelo en todas las filas");
 
     setIsCreatingQuote(true);
     try {
-      const resAmounts = await fetch(`${API_URL}/admin/quotes/${selectedCustomer.id}/amounts`, {
-        method: 'PATCH',
+      const allModels = quoteItems.map(i => `${i.name} (${i.quantity})`).join(", ");
+      
+      const response = await fetch(`${API_URL}/admin/quotes/manual`, {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          total_amount: totalConIgv,
-          items: quoteItems.map(item => ({
-            name: item.name,
-            quantity: item.quantity,
-            unit_price: item.unitPrice
-          }))
-        })
-      });
-
-      const allModels = quoteItems.map(i => i.name).join(", ");
-      const resUpdate = await fetch(`${API_URL}/admin/quotes/${selectedCustomer.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: selectedCustomer.name,
+          customer_id: selectedCustomer.id,
           model: allModels,
-          message: `Cotización múltiple (${quoteItems.length} items) generada desde el directorio.`
+          quantity: quoteItems.reduce((acc, i) => acc + i.quantity, 0),
+          unit_price: quoteItems[0].unitPrice, 
+          total_amount: totalConIgv
         })
       });
 
-      if (resAmounts.ok && resUpdate.ok) {
-        alert("¡Cotización múltiple generada con éxito!");
+      if (response.ok) {
+        alert("¡Cotización generada con éxito! Revisa la pestaña de Cotizaciones.");
         setSelectedCustomer(null);
         setQuoteItems([]);
         fetchCustomers();
+      } else {
+        const errorData = await response.json();
+        alert(`Error: ${errorData.error}`);
       }
     } catch (e) { 
-        console.error(e); 
-        alert("Error al procesar la cotización");
+        alert("Error de conexión al generar cotización");
     } finally { 
         setIsCreatingQuote(false); 
     }
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm("¿Eliminar este registro?")) return;
+    if (!confirm("¿Eliminar este cliente y todo su historial?")) return;
     try {
       const resp = await fetch(`${API_URL}/admin/quotes/${id}`, { method: 'DELETE' });
       if (resp.ok) fetchCustomers();
     } catch (error) { alert("Error al eliminar"); }
   };
 
+  // 3. REGISTRAR CLIENTE NUEVO (CREA EL PERFIL BASE)
   const handleSubmitClient = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!phoneNumber || !isValidPhoneNumber(phoneNumber)) {
-      setErrorMessage("Número no válido");
-      setStatus('error');
+      alert("Número telefónico no válido");
       return;
     }
+    
     setStatus('loading');
     const formData = new FormData(e.currentTarget);
+    
     const data = {
-      name: formData.get('name'),
+      fullname: formData.get('name'),
       email: formData.get('email'),
       phone: phoneNumber,
       ruc: formData.get('ruc'),
-      model: "REGISTRO MANUAL (ADMIN)",
-      message: formData.get('message') || "Registrado desde el panel administrativo.",
     };
 
     try {
-      const response = await fetch(`${API_URL}/quote`, {
+      const response = await fetch(`${API_URL}/admin/quotes`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
+
       if (response.ok) {
         setStatus('success');
         setPhoneNumber(undefined);
         (e.target as HTMLFormElement).reset();
         fetchCustomers();
         setTimeout(() => setStatus('idle'), 3000);
+      } else {
+        const err = await response.json();
+        alert(err.error);
+        setStatus('error');
       }
-    } catch (error) { setStatus('error'); }
+    } catch (error) { 
+      setStatus('error');
+      alert("Error al conectar con el servidor");
+    }
   };
 
   return (
@@ -155,7 +159,7 @@ export default function CustomersPage() {
       <div className="max-w-4xl mx-auto">
         <header className="mb-8 text-center md:text-left">
           <h1 className="text-3xl md:text-4xl font-black uppercase tracking-tighter italic">Directorio de <span className="text-primary">Clientes</span></h1>
-          <p className="text-muted-theme text-[9px] font-bold uppercase tracking-[0.2em] mt-2">Gestión centralizada de registros y cotizaciones</p>
+          <p className="text-muted-theme text-[9px] font-bold uppercase tracking-[0.2em] mt-2">Base de datos única de prospectos y empresas</p>
         </header>
 
         <form onSubmit={handleSubmitClient} className="bg-[var(--card-bg)] border border-theme p-5 md:p-10 shadow-2xl space-y-6 rounded-sm">
@@ -176,10 +180,10 @@ export default function CustomersPage() {
 
       <div className="bg-[var(--card-bg)] border border-theme shadow-2xl rounded-sm overflow-hidden">
         <div className="p-5 border-b border-theme bg-primary/5 flex flex-col md:flex-row justify-between items-center gap-4">
-          <h2 className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-theme italic">Clientes en Base de Datos</h2>
+          <h2 className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-theme italic">Clientes Únicos en Base de Datos</h2>
           <div className="relative w-full md:w-80">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-theme" size={14} />
-            <input type="text" placeholder="BUSCAR..." value={searchTerm} onChange={(e) => {setSearchTerm(e.target.value); setPage(1);}} className="w-full bg-[var(--background)] border border-theme py-3 pl-12 pr-4 text-[10px] font-bold uppercase outline-none focus:border-primary text-[var(--foreground)]" />
+            <input type="text" placeholder="BUSCAR POR NOMBRE O RUC..." value={searchTerm} onChange={(e) => {setSearchTerm(e.target.value); setPage(1);}} className="w-full bg-[var(--background)] border border-theme py-3 pl-12 pr-4 text-[10px] font-bold uppercase outline-none focus:border-primary text-[var(--foreground)]" />
           </div>
         </div>
 
@@ -197,7 +201,7 @@ export default function CustomersPage() {
               {!loadingList && customers.map((c: any) => (
                 <tr key={c.id} className="hover:bg-primary/5 transition-all group">
                   <td className="p-6">
-                    <p className="text-primary font-black italic text-sm">{c.name}</p>
+                    <p className="text-primary font-black italic text-sm">{c.fullname || c.name}</p>
                     <p className="text-[9px] text-muted-theme lowercase">{c.email}</p>
                   </td>
                   <td className="p-6 text-muted-theme font-mono">{c.ruc || "N/A"}</td>
@@ -211,7 +215,7 @@ export default function CustomersPage() {
                             }}
                             className="flex items-center gap-2 bg-[var(--foreground)] text-[var(--background)] px-4 py-2 text-[9px] font-black hover:bg-primary hover:text-white transition-all shadow-lg"
                         >
-                            <FileText size={12}/> COTIZAR
+                            <FileText size={12}/> NUEVA COTIZACIÓN
                         </button>
                         <button onClick={() => handleDelete(c.id)} className="p-2 text-muted-theme hover:text-red-600 transition-all"><Trash2 size={14} /></button>
                     </div>
@@ -222,11 +226,12 @@ export default function CustomersPage() {
           </table>
         </div>
 
+        {/* VISTA MOBILE */}
         <div className="md:hidden divide-y divide-white/5">
           {!loadingList && customers.map((c: any) => (
             <div key={c.id} className="p-5 space-y-4">
                 <div className="flex justify-between items-start">
-                    <div><h3 className="text-primary font-black uppercase text-sm italic">{c.name}</h3><p className="text-[9px] text-muted-theme">{c.email}</p></div>
+                    <div><h3 className="text-primary font-black uppercase text-sm italic">{c.fullname || c.name}</h3><p className="text-[9px] text-muted-theme">{c.email}</p></div>
                     <button onClick={() => handleDelete(c.id)} className="p-2 text-red-500/50"><Trash2 size={14}/></button>
                 </div>
                 <button onClick={() => { 
@@ -246,6 +251,7 @@ export default function CustomersPage() {
         </div>
       </div>
 
+      {/* MODAL DE COTIZACIÓN MÚLTIPLE */}
       <AnimatePresence>
         {selectedCustomer && (
           <div className="fixed inset-0 z-[500] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
@@ -253,7 +259,7 @@ export default function CustomersPage() {
               <div className="p-6 border-b border-theme flex justify-between items-center bg-white/[0.02]">
                 <div>
                     <h2 className="text-xl font-black uppercase italic tracking-tighter">Emitir <span className="text-primary">Cotización Múltiple</span></h2>
-                    <p className="text-[8px] font-bold text-muted-theme uppercase">Cliente: {selectedCustomer.name}</p>
+                    <p className="text-[8px] font-bold text-muted-theme uppercase">Cliente: {selectedCustomer.fullname || selectedCustomer.name}</p>
                 </div>
                 <button onClick={() => setSelectedCustomer(null)} className="text-muted-theme hover:text-white"><X size={24}/></button>
               </div>
