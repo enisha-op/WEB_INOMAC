@@ -8,7 +8,7 @@ export const Hero = () => {
       {/* Background Image - Estilo Full Screen */}
       <div className="absolute inset-0">
         <img
-          src="/camion1.jpg" 
+          src="/hero-truck-red.png" 
           alt="Camión INOMAC"
           className="w-full h-full object-cover opacity-70" // Bajé un poco la opacidad para que el rojo resalte más
         />
